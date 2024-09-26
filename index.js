@@ -1,12 +1,9 @@
-const handlerbars = require('handlebars');
+const handlebars = require('handlebars');
 
 const pkg = 'aws-sdk';
 const AWS = require(`${pkg}`);
 const codecommit = new AWS.CodeCommit({
     apiVersion: '2015-04-13'
-});
-const sqs = new AWS.SQS({
-    apiVersion: '2012-11-05'
 });
 
 const BRANCH = process.env.BRANCH;
@@ -33,7 +30,7 @@ function getGlobalConfiguration() {
 
 function _getTemplate(name) {
     return getTextFile(`email/${name}.hbs`).then(text => {
-        return handlerbars.compile(text);
+        return handlebars.compile(text);
     });
 }
 
@@ -71,10 +68,12 @@ async function _loadPartials(partials, ndx) {
             });
             return next;
         } else {
-            return getTextFile(partial.source).then(async (text) => {
+            let source = `/partial/${partial.source}.hbs`
+            console.log(`load partial: ${source}`);
+            return getTextFile(source).then(async (text) => {
                 let current;
                 if (text) {
-                    handlerbars.registerPartial(partial.name, text);
+                    handlebars.registerPartial(partial.name, text);
                     current = {
                         partial: partial.name
                     };
